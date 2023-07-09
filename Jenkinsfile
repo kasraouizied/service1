@@ -1,39 +1,15 @@
-// Jenkinsfile
-
 pipeline {
-  // Assign to docker agent(s) label, could also be 'any'
-  agent {
-    label 'docker' 
-  }
-
-  stages {
-    stage('Docker node test') {
-      agent {
+    agent {
         docker {
-          // Set both label and image
-          label 'docker'
-          image 'node:7-alpine'
-          args '--name docker-node' // list any args
+            image 'maven:3.9.3-eclipse-temurin-17'
+            args '-v $HOME/.m2:/root/.m2'
         }
-      }
-      steps {
-        // Steps run in node:7-alpine docker container on docker agent
-        sh 'node --version'
-      }
     }
-
-    stage('Docker maven test') {
-      agent {
-        docker {
-          // Set both label and image
-          label 'docker'
-          image 'maven:3-alpine'
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
         }
-      }
-      steps {
-        // Steps run in maven:3-alpine docker container on docker agent
-        sh 'mvn --version'
-      }
     }
-  }
-} 
+}
