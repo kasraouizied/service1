@@ -1,27 +1,39 @@
+// Jenkinsfile
+
 pipeline {
-    agent { label 'dockerserver' } // if you don't have other steps, 'any' agent works
-    stages {
-        stage('Back-end') {
-            agent {
-                docker {
-                  label 'dockerserver'  // both label and image
-                  image 'maven:3-alpine'
-                }
-            }
-            steps {
-                sh 'mvn --version'
-            }
+  // Assign to docker agent(s) label, could also be 'any'
+  agent {
+    label 'dockerserver' 
+  }
+
+  stages {
+    stage('Docker node test') {
+      agent {
+        docker {
+          // Set both label and image
+          label 'dockerserver'
+          image 'node:7-alpine'
+          args '--name docker-node' // list any args
         }
-        stage('Front-end') {
-            agent {
-              docker {
-                label 'dockerserver'  // both label and image
-                image 'node:7-alpine' 
-              }
-            }
-            steps {
-                sh 'node --version'
-            }
-        }
+      }
+      steps {
+        // Steps run in node:7-alpine docker container on docker agent
+        sh 'node --version'
+      }
     }
-}
+
+    stage('Docker maven test') {
+      agent {
+        docker {
+          // Set both label and image
+          label 'dockerserver'
+          image 'maven:3-alpine'
+        }
+      }
+      steps {
+        // Steps run in maven:3-alpine docker container on docker agent
+        sh 'mvn --version'
+      }
+    }
+  }
+} 
