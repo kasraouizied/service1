@@ -1,14 +1,23 @@
 pipeline {
     agent {
-        docker {
-            image 'maven:3.9.3-eclipse-temurin-17'
-            args '-v $HOME/.m2:/root/.m2'
+        kubernetes {
+            defaultContainer 'jnlp'
+            yamlFile 'agentpod.yaml'
         }
     }
     stages {
         stage('Build') {
             steps {
-                sh 'mvn -B'
+                container('maven') {
+                    sh 'mvn package'
+                }
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                container('docker') {
+                    sh "docker build -t dockerimage ."
+                }
             }
         }
     }
